@@ -5,6 +5,8 @@
  */
 package trablf;
 
+import automato.State;
+
 /**
  *
  * @author Allan

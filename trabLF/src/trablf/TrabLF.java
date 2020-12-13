@@ -5,6 +5,7 @@
  */
 package trablf;
 
+import automato.State;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -41,6 +42,7 @@ public class TrabLF {
 
     public void addTransictions() {
         String idstate1, idstate2;
+        int symbol;
         Transiction transiction = new Transiction();
         State state1, state2;
 
@@ -57,31 +59,20 @@ public class TrabLF {
             state2 = stateIsValid(idstate2);
             transiction.setState2(state2);
         } while (state2 == null);
-        
-        System.out.println("Informe o valor de entrada da transição: ");
-        int symbol = scn.nextInt();
-        if(isValidSymbol(symbol)==true){
-            transiction.setValue(String.valueOf(symbol));
-        }
-        
+
+        do {
+            System.out.println("Informe o valor de entrada da transição: ");
+            symbol = scn.nextInt();
+            if (isValidSymbol(symbol) == true) {
+                transiction.setValue(String.valueOf(symbol));
+            }
+        } while (isValidSymbol(symbol) == false);
         transictions.add(transiction);
-
-    }
-    
-    
-    public String printAutomato(){
-        String automato = "*  0  1 \n";
-        
-        
-        
-        
-        
-        
-        
-        
-        return automato;
     }
 
+    
+    
+    
     public State stateIsValid(String idstate) {
         State state = null;
         for (int i = 0; i < states.size(); i++) {
@@ -95,18 +86,22 @@ public class TrabLF {
 
         return state;
     }
-    
-    
-    public boolean isValidSymbol(int symbol){
-        
+
+    public boolean isValidSymbol(int symbol) {
+
         for (int i = 0; i < alphabet.length; i++) {
-            if(symbol==alphabet[i]){
+            if (symbol == alphabet[i]) {
                 return true;
+            }
+
+            return false;
         }
-        
-        
-        return false;
-    }
+
+    
+
+    
+
+    
 
     public static void main(String[] args) {
         // TODO code application logic here
