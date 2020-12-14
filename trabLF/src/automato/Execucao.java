@@ -8,8 +8,9 @@ public class Execucao {
        
       AFD afd = new AFD("0*1*");
       
-      afd.menu();
+   afd.menu();
       
+  
       
    }
 }

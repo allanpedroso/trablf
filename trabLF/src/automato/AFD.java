@@ -1,11 +1,10 @@
 package automato;
 
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.ArrayList;
-import automato.Transicao;
+import java.util.List;
 import java.util.Scanner;
 
 class AFD {
@@ -14,6 +13,7 @@ class AFD {
     private Set<Estado> estados = new HashSet<>();
     private Set<Estado> estadosAceitos = new HashSet<>();
     private Transicao funcaoTransicao = new Transicao();
+    private List<Estado> todosOsEstadosComTransicoes;
     private Estado estadoInicial;
     private String titulo;
 
@@ -23,6 +23,7 @@ class AFD {
 
     AFD(String titulo) {
         this.titulo = titulo;
+        todosOsEstadosComTransicoes = new ArrayList();
     }
 
     String getTitulo() {
@@ -66,9 +67,7 @@ class AFD {
         return null;
     }
 
-    Set<Character> getAlfabeto() {
-        return alfabeto;
-    }
+   
 
     void addAlfabeto() {
         Scanner scn = new Scanner(System.in);
@@ -81,9 +80,9 @@ class AFD {
     }
 
     void printAlfabeto() {
-        System.out.print("Alfabeto: ");
+        System.out.println("Alfabeto: ");
         for (char caractere : alfabeto) {
-            System.out.print(caractere + " ");
+            System.out.print(caractere + ", ");
         }
         System.out.println();
     }
@@ -106,7 +105,7 @@ class AFD {
     }
 
     void printEstados() {
-        System.out.print("Estados: ");
+        System.out.println("Conjunto de estados: ");
         for (Estado estado : estados) {
             System.out.print(estado.getNome() + " ");
         }
@@ -139,11 +138,11 @@ class AFD {
      * Imprime os estados Aceitos
      */
     void printEstadosAceitos() {
-        System.out.print("Estados aceitos: ");
+        System.out.println("Conjunto de estados Finais: ");
         for (Estado estado : estadosAceitos) {
-            System.out.print(estado.getNome() + " ");
+            System.out.println(estado.getNome() + "\n");
         }
-        System.out.println();
+       
     }
 
     /**
@@ -209,12 +208,12 @@ class AFD {
     }
 
     /**
-     * Imprime a sequência de estados
+     * Imprime a sequência de estados que é acessado pelo autômato na leitura da palavra.
      *
      * @param sequencia
      */
     void printSequencia(ArrayList<Estado> sequencia) {
-        System.out.print("Sequência de Estados:\n");
+        System.out.print("Sequência de Estados: \n");
         for (int i = 0; i < sequencia.size(); i++) {
             System.out.print(sequencia.get(i).getNome() + " ");
         }
@@ -225,7 +224,7 @@ class AFD {
      * Verifica se os caracteres inseridos na entrada são compativeis com o
      * alfabeto.
      *
-     * @param stringEntrada
+     * @param stringEntrada palavra informada pelo usuário.
      * @return
      */
     boolean verificaEntrada(String stringEntrada) {
@@ -235,6 +234,7 @@ class AFD {
                 isValido = false;
                 break;
             }
+
         }
         return isValido;
     }
@@ -243,27 +243,27 @@ class AFD {
      * Execução do automato baseado na entrada, retorna true para aceita e false
      * para palavra rejeitada.
      *
-     * @param palavra
-     * @return
+     * @param palavra palavra de entrada.
+     * @return true ou false. true para aceita e falso para rejeitada.
      */
-    boolean solucao(String palavra) {
+    boolean executaAutomato(String palavra) {
         if (!verificaEntrada(palavra)) {
-            throw new IllegalArgumentException("IAException: Os caracteres inseridos não estão contidos no alfabeto. ");
+            throw new IllegalArgumentException("Os caracteres inseridos não estão contidos no alfabeto!");
         } else {
             ArrayList<Estado> sequencia = new ArrayList<>();     // Sequência de estados acessados
-            Estado origem = estadoInicial;
+            Estado origem = estadoInicial; //seta o primeiro estado de origem do autômato com base no estadoInicial setado anteriormente.
             sequencia.add(estadoInicial);     // Adiciona o estado inicial a sequencia de estados alcançados
 
             for (int i = 0; i < palavra.length(); i++) {
-                char currentChar = palavra.charAt(i);
+                char caractereAtualLeitura = palavra.charAt(i);
                 try {
-                    Estado target = funcaoTransicao.getDestino(origem, currentChar);    // Encontra o estado destino através do estado origem e do caracter atual do processamento da palavra.
+                    Estado destino = funcaoTransicao.getDestino(origem, caractereAtualLeitura);    // Encontra o estado destino através do estado origem e do caracter atual do processamento da palavra.
 
-                    sequencia.add(target);      // adiciona o estado a sequência
-                    origem = target;     // estado destino se torna estado origem para a próxima iteração.
+                    sequencia.add(destino);      // adiciona o estado a sequência
+                    origem = destino;     // estado destino se torna estado origem para a próxima iteração.
                 } catch (NullPointerException ex) {
                     System.out.println(ex.getMessage());
-                    
+
                 }
             }
 
@@ -278,12 +278,53 @@ class AFD {
         }
     }
 
+    /**
+     * Método que adiciona os estados que estão contidos nas transições em um array, para comparação e eliminação de estados mortos
+     */
+    void addEstadosTransicoes() {
+
+        for (Map.Entry<Estado, Map<Character, Estado>> entry : funcaoTransicao.getFuncaoDeTransicao().entrySet()) {  // Para cada entrada no mapa de transições
+            Estado origem = entry.getKey();
+            Map<Character, Estado> entradaEdestino = entry.getValue();      
+            //Adiciona estados de origem ao array
+            todosOsEstadosComTransicoes.add(origem);
+
+            for (Map.Entry<Character, Estado> e : entradaEdestino.entrySet()) {
+                Estado destino = e.getValue(); 
+                //Adiciona estados de destino ao array
+                todosOsEstadosComTransicoes.add(destino);
+
+            }
+        }
+        printEstados();
+
+    }
+    
+    
+   
+
+    
+
+    /**
+     * O método remove os estados mortos do autômato.
+     */
+    void minimiza() {
+
+        estados.retainAll(todosOsEstadosComTransicoes);
+
+        printEstados();
+
+    }
+
+    /**
+     * Menu do programa.
+     */
     void menu() {
         int op;
         Scanner entrada = new Scanner(System.in);
         do {
             System.out.println("Informe a opção que deseja: \n 1. Adicionar alfabeto \n 2. Adicionar Estados \n 3. Adicionar Transição \n 4. Definir Estado Inicial \n 5. Definir Estado de Aceitação "
-                    + "\n 6. Executar autômato");
+                    + "\n 6. Executar autômato \n 7. Minizar automato \n 0. Sair");
             op = entrada.nextInt();
             switch (op) {
                 case 1:
@@ -308,27 +349,31 @@ class AFD {
                     palavra = scn.next();
 
                     try {
-                        solucao(palavra);
-                        boolean acceptance = solucao(palavra);
+                        executaAutomato(palavra);
+                        boolean estadoAceito = executaAutomato(palavra);
 
-                        if (acceptance) {
-                            System.out.println(palavra + " foi aceita pela máquina de estados: " + getTitulo() + "\n");
+                        if (estadoAceito) {
+                            System.out.println("A palavra " + palavra + " foi aceita pelo autômato\n");
                         } else {
-                            System.out.println(palavra + " foi rejeitada pela máquina de estados: " + getTitulo() + "\n");
+                            System.out.println("A palavra " + palavra + " foi rejeitada pelo autômato\n");
                         }
                     } catch (NullPointerException e) {
                         menu();
-                    }
-                    catch (IllegalArgumentException e){
+                    } catch (IllegalArgumentException e) {
                         menu();
                     }
 
+                    break;
+                case 7:
+                    addEstadosTransicoes();
+                    minimiza();
+                 
                     break;
 
                 default:
                     System.exit(op);
             }
-        } while (op != 7);
+        } while (op != 0);
 
     }
 }
