@@ -1,10 +1,14 @@
 package automato;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 
 class Transicao {
    private Map<Estado, Map<Character, Estado>> transicao = new HashMap<>();
+   
+   private List todosOsEstadosComTransicoes;
    
    Transicao() {
    
@@ -51,4 +55,26 @@ class Transicao {
          }       
       }
    }
+   
+   void minimizacao(){
+       todosOsEstadosComTransicoes= new ArrayList();
+       for(Map.Entry<Estado, Map<Character, Estado>> entry: transicao.entrySet()) {  // Para cada entrada no mapa de transições
+         Estado origem = entry.getKey();     
+         Map<Character, Estado> value = entry.getValue();       // get value, single-entry Map(input Character, target Estado)
+         //TODO ADICIONAR ESTADOS DE ORIGEM
+        todosOsEstadosComTransicoes.add(origem);
+         
+         for(Map.Entry<Character, Estado> e: value.entrySet()) {   
+            char input = e.getKey();
+            Estado target = e.getValue();
+            //TODO ADICIONAR ESTADOS DE DESTINO
+        todosOsEstadosComTransicoes.add(target);    
+            System.out.print("\tEstado origem: " + origem.getNome() + " --> entrada " + input + " --> Estado destino: " + target.getNome() + "\n");
+         }       
+      }
+       
+       
+   }
+   
+   
 }
