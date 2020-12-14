@@ -263,7 +263,7 @@ class AFD {
                     origem = target;     // estado destino se torna estado origem para a próxima iteração.
                 } catch (NullPointerException ex) {
                     System.out.println(ex.getMessage());
-                    System.exit(1);
+                    
                 }
             }
 
@@ -317,6 +317,9 @@ class AFD {
                             System.out.println(palavra + " foi rejeitada pela máquina de estados: " + getTitulo() + "\n");
                         }
                     } catch (NullPointerException e) {
+                        menu();
+                    }
+                    catch (IllegalArgumentException e){
                         menu();
                     }
 
