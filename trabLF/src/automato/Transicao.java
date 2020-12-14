@@ -4,34 +4,34 @@ import java.util.Map;
 import java.util.HashMap;
 
 class Transicao {
-   private Map<Estado, Map<Character, Estado>> transition = new HashMap<>();
+   private Map<Estado, Map<Character, Estado>> transicao = new HashMap<>();
    
    Transicao() {
    
    }
    
    Map<Estado, Map<Character, Estado>> getTransitionFunction() {
-      return transition;
+      return transicao;
    }
    
-   void addTransicao(Estado source, char input, Estado target) {
-      if(!transition.containsKey(source)) {     // if key source is not in transition, add new Map
-         Map<Character, Estado> value = new HashMap<>();
-         transition.put(source, value);
+   void addTransicao(Estado origem, char entrada, Estado destino) {
+      if(!transicao.containsKey(origem)) {     // if key source is not in transition, add new Map
+         Map<Character, Estado> valor = new HashMap<>();
+         transicao.put(origem, valor);
          
-         value.put(input, target);     // put into nested Map
+         valor.put(entrada, destino);     // put into nested Map
       }
       else {
-         Map<Character, Estado> value = transition.get(source);    // else retrieve nested map
+         Map<Character, Estado> value = transicao.get(origem);    // else retrieve nested map
          
-         value.put(input, target);
+         value.put(entrada, destino);
       }
    }
    
    Estado getDestino(Estado origem, char entrada) {
-      Estado destino = transition.get(origem).get(entrada);
+      Estado destino = transicao.get(origem).get(entrada);
       if(destino == null) {
-         throw new NullPointerException("NPException: Transição não encontrada para o estado de origem: " + origem.getNome() + " Entrada: " + entrada);
+         throw new NullPointerException("Transição não encontrada para o estado de origem: " + origem.getNome() + " Entrada: " + entrada);
       }
       
       else
@@ -40,14 +40,14 @@ class Transicao {
    
    void printTransicao() {
       System.out.print("Função de Transição: \n");
-      for(Map.Entry<Estado, Map<Character, Estado>> entry: transition.entrySet()) {  // Para cada entrada no mapa de transições
-         Estado source = entry.getKey();     
+      for(Map.Entry<Estado, Map<Character, Estado>> entry: transicao.entrySet()) {  // Para cada entrada no mapa de transições
+         Estado origem = entry.getKey();     
          Map<Character, Estado> value = entry.getValue();       // get value, single-entry Map(input Character, target Estado)
          
-         for(Map.Entry<Character, Estado> e: value.entrySet()) {     // for each entry(1) in nested Map...
+         for(Map.Entry<Character, Estado> e: value.entrySet()) {   
             char input = e.getKey();
             Estado target = e.getValue();
-            System.out.print("\tSource State " + source.getNome() + " --> input " + input + " --> Target State " + target.getNome() + "\n");
+            System.out.print("\tEstado origem: " + origem.getNome() + " --> entrada " + input + " --> Estado destino: " + target.getNome() + "\n");
          }       
       }
    }
