@@ -1,5 +1,6 @@
 package automato;
 
+import com.google.common.base.Predicates;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
@@ -14,6 +15,7 @@ class AFD {
     private Set<Estado> estadosAceitos = new HashSet<>();
     private Transicao funcaoTransicao = new Transicao();
     private List<Estado> todosOsEstadosComTransicoes;
+    private List<Estado> estadosInalcancaveis;
     private Estado estadoInicial;
     private String titulo;
 
@@ -24,6 +26,7 @@ class AFD {
     AFD(String titulo) {
         this.titulo = titulo;
         todosOsEstadosComTransicoes = new ArrayList();
+        estadosInalcancaveis = new ArrayList();
     }
 
     String getTitulo() {
@@ -67,8 +70,6 @@ class AFD {
         return null;
     }
 
-   
-
     void addAlfabeto() {
         Scanner scn = new Scanner(System.in);
         char caractere;
@@ -82,7 +83,7 @@ class AFD {
     void printAlfabeto() {
         System.out.println("Alfabeto: ");
         for (char caractere : alfabeto) {
-            System.out.print(caractere + ", ");
+            System.out.print(caractere + " ");
         }
         System.out.println();
     }
@@ -142,7 +143,7 @@ class AFD {
         for (Estado estado : estadosAceitos) {
             System.out.println(estado.getNome() + "\n");
         }
-       
+
     }
 
     /**
@@ -208,12 +209,13 @@ class AFD {
     }
 
     /**
-     * Imprime a sequência de estados que é acessado pelo autômato na leitura da palavra.
+     * Imprime a sequência de estados que é acessado pelo autômato na leitura da
+     * palavra.
      *
      * @param sequencia
      */
     void printSequencia(ArrayList<Estado> sequencia) {
-        System.out.print("Sequência de Estados: \n");
+        System.out.println("Sequência de Estados: \n");
         for (int i = 0; i < sequencia.size(); i++) {
             System.out.print(sequencia.get(i).getNome() + " ");
         }
@@ -279,41 +281,55 @@ class AFD {
     }
 
     /**
-     * Método que adiciona os estados que estão contidos nas transições em um array, para comparação e eliminação de estados mortos
+     * Método que adiciona os estados que estão contidos nas transições em um
+     * array, para comparação e eliminação de estados mortos
      */
     void addEstadosTransicoes() {
 
         for (Map.Entry<Estado, Map<Character, Estado>> entry : funcaoTransicao.getFuncaoDeTransicao().entrySet()) {  // Para cada entrada no mapa de transições
             Estado origem = entry.getKey();
-            Map<Character, Estado> entradaEdestino = entry.getValue();      
+            Map<Character, Estado> entradaEdestino = entry.getValue();
             //Adiciona estados de origem ao array
             todosOsEstadosComTransicoes.add(origem);
 
             for (Map.Entry<Character, Estado> e : entradaEdestino.entrySet()) {
-                Estado destino = e.getValue(); 
+                Estado destino = e.getValue();
                 //Adiciona estados de destino ao array
                 todosOsEstadosComTransicoes.add(destino);
+                estadosInalcancaveis.add(destino);
 
             }
         }
         printEstados();
 
     }
-    
-    
-   
 
-    
+    void minimizacao() {
+        for (Map.Entry<Estado, Map<Character, Estado>> entry : funcaoTransicao.getFuncaoDeTransicao().entrySet()) {  // Para cada entrada no mapa de transições
+            Estado origem = entry.getKey();
+            Map<Character, Estado> entradaEdestino = entry.getValue();
+            //Adiciona estados de origem ao array
+            todosOsEstadosComTransicoes.add(origem);
+
+            for (Estado e : entradaEdestino.values()) {
+                if(estadosInalcancaveis.contains(e) && entradaEdestino.containsValue(e)){
+                  
+                   funcaoTransicao.getFuncaoDeTransicao().values().removeIf(value -> value.containsValue(e));
+                    
+                  
+                } 
+            }
+        }
+    }
 
     /**
      * O método remove os estados mortos do autômato.
      */
     void minimiza() {
-
+        minimizacao();
         estados.retainAll(todosOsEstadosComTransicoes);
-
+        System.out.println("Autômato minimizado: ");
         printEstados();
-
     }
 
     /**
@@ -367,7 +383,7 @@ class AFD {
                 case 7:
                     addEstadosTransicoes();
                     minimiza();
-                 
+
                     break;
 
                 default:
